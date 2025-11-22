@@ -1,45 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { 
   LayoutDashboard, Users, ShoppingBag, LogOut, Printer, Shirt, 
   Trash2, Grid3X3, Calendar, CheckCircle, BarChart3, CheckSquare, 
   AlertCircle, X, Loader2, Plus 
 } from 'lucide-react';
 
-// ==================================================================================
-// ⚠️  INSTRUÇÕES FINAIS PARA PRODUÇÃO (SEU VS CODE / VERCEL)  ⚠️
-//
-// 1.  DESCOMENTE a linha de import abaixo (remova as barras // ):
-//     import { createClient } from '@supabase/supabase-js';
-//
-// 2.  APAGUE ou COMENTE todo o "BLOCO DE SIMULAÇÃO/MOCK" abaixo.
-// ==================================================================================
-
-// --- BLOCO DE SIMULAÇÃO/MOCK (MANTENHA AQUI SÓ PARA VISUALIZAR, APAGUE NO SEU PC) ---
-const createClient = (url, key) => ({
-  auth: {
-    getSession: () => Promise.resolve({ data: { session: { user: { id: 'mock-id' } } } }),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-    signInWithPassword: () => new Promise(r => setTimeout(() => r({ error: null }), 1000)),
-    signOut: () => Promise.resolve(),
-  },
-  from: () => ({
-    select: () => ({
-      order: () => Promise.resolve({ data: [] }),
-      eq: () => ({ single: () => Promise.resolve({ data: { name: 'Admin Demo', role: 'admin' } }) })
-    }),
-    insert: () => Promise.resolve({ error: null }),
-    delete: () => ({ 
-      eq: () => Promise.resolve({}), 
-      in: () => Promise.resolve({}),
-      match: () => Promise.resolve({}) 
-    }),
-    update: () => ({ eq: () => Promise.resolve({}) })
-  })
-});
-// --- FIM DO BLOCO DE SIMULAÇÃO ---------------------------------------------------------
-
-
 // --- CONFIGURAÇÃO SUPABASE ---
+// A Vercel lerá estas chaves das Variáveis de Ambiente que você configurar no painel dela.
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -92,6 +60,7 @@ const OrderPrintView = ({ order, onClose, onMarkPrinted }) => {
 
   const handlePrintAndConfirm = () => {
     window.print();
+    // Delay para garantir que a caixa de impressão abriu antes do confirm
     setTimeout(() => {
       if (onMarkPrinted && !order.printed) {
         if(window.confirm("A impressão foi realizada corretamente? \nDeseja marcar este pedido como 'IMPRESSO' no sistema?")) {
